@@ -2,6 +2,7 @@
 # https://tutorialedge.net/python/concurrency/asyncio-event-loops-tutorial/
 
 import cv2
+import math
 import asyncio
 import numpy as np
 import pyrealsense2 as rs
@@ -86,11 +87,6 @@ async def myCoroutine():
 
     # Configure the pipeline
     cfg = rs.config()
-
-    # Prints a list of available streams, not all are supported by each device
-    #  'accel', 'any', 'color', 'confidence', 'depth',
-    #  'fisheye', 'gpio', 'gyro', 'infrared', 'name',
-    #  'pose', 'value'
 
     # Enable streams you are interested in
     cfg.enable_stream(
