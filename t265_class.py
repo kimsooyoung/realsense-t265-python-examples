@@ -11,6 +11,7 @@ import pyrealsense2 as rs
 class RST265(object):
 
     MAX_POINT_LEN = 500
+    DEBUG_MODE = True
 
     def __init__(self):
         self._pipe = rs.pipeline()
@@ -27,6 +28,13 @@ class RST265(object):
 
     def pipe_start(self):
         self._pipe.start(self._cfg)
+        if self.DEBUG_MODE is True:
+            print("Start Pipe")
+
+    def pipe_stop(self):
+        self._pipe.stop()
+        if self.DEBUG_MODE is True:
+            print("Stop Pipe")
 
     async def get_pose_data(self):
         frames = self._pipe.wait_for_frames()
@@ -47,12 +55,15 @@ class RST265(object):
 
             self._cur_pose = (pose_x, pose_y, pose_z)
             self._cur_vel = (vel_x, vel_y, vel_z)
-
-            asyncio.sleep(0.001)
             
-            print("\nFrame number: ", pose.frame_number)
-            print(self._cur_pose)
-            print(self._cur_vel)
+            # print("\nFrame number: ", pose.frame_number)
+            # print(self._cur_pose)
+            # print(self._cur_vel)
+
+            await asyncio.sleep(0.0005)
+
+        return (self._cur_pose, self._cur_vel)
+
 
     async def pose_coroutine(self):
         while True:
@@ -72,6 +83,13 @@ class RST265(object):
             print("====== Loop Closed =========")
 
 if __name__=="__main__":
+
     t265 = RST265()
-    t265.pipe_start()
-    t265.run()
+    try:
+        t265.pipe_start()
+        t265.run()
+    except Exception as e:
+        print(e)
+    finally:
+        t265.pipe_stop()
+        print("Done...")
