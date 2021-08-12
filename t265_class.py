@@ -13,21 +13,23 @@ class RST265(object):
     MAX_POINT_LEN = 500
 
     def __init__(self):
-        self.pipe = rs.pipeline()
+        self._pipe = rs.pipeline()
 
-        self.cfg = rs.config()
-        self.cfg.enable_stream(rs.stream.pose)
-        self.cfg.enable_stream(rs.stream.fisheye, 1)  # Left camera
-        self.cfg.enable_stream(rs.stream.fisheye, 2)  # Right camera
+        self._cfg = rs.config()
+        self._cfg.enable_stream(rs.stream.pose)
+        self._cfg.enable_stream(rs.stream.fisheye, 1)  # Left camera
+        self._cfg.enable_stream(rs.stream.fisheye, 2)  # Right camera
 
-        self.pipe.start(self.cfg)
-        self._cur_point = ()
+        self._cur_pose = ()
         self._cur_vel = ()
 
         self._loop = asyncio.get_event_loop()
 
-    def get_points(self):
-        frames = self.pipe.wait_for_frames()
+    def pipe_start(self):
+        self._pipe.start(self._cfg)
+
+    async def get_pose_data(self):
+        frames = self._pipe.wait_for_frames()
 
         # Positional data frame
         pose = frames.get_pose_frame()
@@ -43,13 +45,19 @@ class RST265(object):
             pose_y = pose_data.translation.y
             pose_z = pose_data.translation.z
 
-            self._cur_point = (pose_x, pose_y, pose_z)
+            self._cur_pose = (pose_x, pose_y, pose_z)
             self._cur_vel = (vel_x, vel_y, vel_z)
+
+            asyncio.sleep(0.001)
+            
+            print("\nFrame number: ", pose.frame_number)
+            print(self._cur_pose)
+            print(self._cur_vel)
 
     async def pose_coroutine(self):
         while True:
-            self._loop.run_in_executor(None, self.get_points)
-    
+            await self.get_pose_data()
+
     def get_current_point(self):
         return self._cur_point
 
@@ -61,7 +69,9 @@ class RST265(object):
             pass
         finally:
             self._loop.close()
+            print("====== Loop Closed =========")
 
 if __name__=="__main__":
     t265 = RST265()
+    t265.pipe_start()
     t265.run()
