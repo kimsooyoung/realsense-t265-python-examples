@@ -1,0 +1,70 @@
+ar zxf librealsense-2.42.0.tar.gz
+cd librealsense-2.42.0/
+mkdir build
+cd build
+
+sudo apt-get update
+sudo apt install libgtk-3-dev libxcursor-dev libxinerama-dev
+
+# gedit ~/.bashrc
+# cuda 10.2
+export CUDA_HOME=/usr/local/cuda
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
+export PATH=$PATH:$CUDA_HOME/bin
+
+
+
+=====
+
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE
+
+sudo add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u
+
+wget "https://librealsense.intel.com/Releases/connectivity_check"
+
+# connectivity_check.cmake
+file(DOWNLOAD "https://librealsense.intel.com/Releases/connectivity_check" "
+
+$ cmake ../ -DBUILD_WITH_TM2=true -DFORCE_RSUSB_BACKEND=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_PYTHON_BINDINGS:bool=true -DPYTHON_EXECUTABLE=/usr/bin/python3.6 -DBUILD_WITH_CUDA:bool=true
+-- Checking internet connection...
+-- Internet connection identified
+-- Info: REALSENSE_VERSION_STRING=2.42.0
+-- Setting Unix configurations
+-- using RS2_USE_LIBUVC_BACKEND
+-- GLFW 3.3 not found; using internal version
+-- Could NOT find Vulkan (missing: VULKAN_LIBRARY VULKAN_INCLUDE_DIR) 
+-- Using X11 for window creation
+-- Could NOT find apriltag (missing: APRILTAG_INC APRILTAG_LIB) 
+-- Unable to find apriltag library, skipping pose-apriltag example
+-- Building with TM2
+-- Fetching recommended firmwares:
+-- D4XX_FW_VERSION: 5.12.11.0
+-- SR3XX_FW_VERSION: 3.26.1.0
+-- T26X_FW_VERSION: 0.2.0.951
+-- L5XX_FW_VERSION: 1.5.4.1
+-- https://librealsense.intel.com/Releases/RS4xx/FW/D4XX_FW_Image-5.12.11.0.bin
+-- Download firmware 0;"No error" for D4XX_FW_Image-5.12.11.0.bin
+-- https://librealsense.intel.com/Releases/SR300/FW/SR3XX_FW_Image-3.26.1.0.bin
+-- Download firmware 0;"No error" for SR3XX_FW_Image-3.26.1.0.bin
+-- https://librealsense.intel.com/Releases/TM2/FW/target/0.2.0.951/target-0.2.0.951.mvcmd
+-- Download firmware 0;"No error" for target-0.2.0.951.mvcmd
+-- https://librealsense.intel.com/Releases/L5xx/FW/L5XX_FW_Image-1.5.4.1.bin
+-- Download firmware 0;"No error" for L5XX_FW_Image-1.5.4.1.bin
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/swimming/Downloads/librealsense-2.42.0/build
+
+make -j2
+sudo make install 
+
+export PATH=$PATH:~/.local/bin
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.6/pyrealsense2
+
+python3
+Python 3.6.9 (default, Jan 26 2021, 15:33:00) 
+[GCC 8.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import pyrealsense2
+>>> exit()
+
