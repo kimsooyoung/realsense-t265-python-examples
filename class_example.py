@@ -44,7 +44,7 @@ class Wrapper(object):
         self._loop.run_forever()
 
     def __del__(self):
-        self.t265.pipe_stop()
+        self._t265.pipe_stop()
 
 if __name__=="__main__":
     my_class = Wrapper()
